@@ -86,4 +86,29 @@ public class TicketDAO {
         }
         return false;
     }
+    
+    public boolean isRecurrentUser(String vehicleRegNumber) {
+    	Connection con = null;
+        Boolean response = false;
+        try {
+            con = dataBaseConfig.getConnection();
+            PreparedStatement ps = con.prepareStatement(DBConstants.RECURRENT_USER);
+            //COUNT WHERE VEHICLEREGNUMBER = VAR
+            ps.setString(1,vehicleRegNumber);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+            	int count = rs.getInt(1);
+            	if(count>1) {
+            		response = true;
+            	}
+            }
+            dataBaseConfig.closeResultSet(rs);
+            dataBaseConfig.closePreparedStatement(ps);
+        }catch (Exception ex){
+            logger.error("Error fetching next available slot",ex);
+        }finally {
+            dataBaseConfig.closeConnection(con);
+        }
+    	return response;
+    }
 }

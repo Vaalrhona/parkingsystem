@@ -34,11 +34,12 @@ public class FareCalculatorServiceTest {
         inTime.setTime( System.currentTimeMillis() - (  60 * 60 * 1000) );
         Date outTime = new Date();
         ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR,false);
+        Boolean recurrency = false;
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
-        fareCalculatorService.calculateFare(ticket);
+        fareCalculatorService.calculateFare(ticket, recurrency);
         assertEquals(ticket.getPrice(), Fare.CAR_RATE_PER_HOUR);
     }
 
@@ -48,11 +49,12 @@ public class FareCalculatorServiceTest {
         inTime.setTime( System.currentTimeMillis() - (  60 * 60 * 1000) );
         Date outTime = new Date();
         ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE,false);
+        Boolean recurrency = false;
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
-        fareCalculatorService.calculateFare(ticket);
+        fareCalculatorService.calculateFare(ticket, recurrency);
         assertEquals(ticket.getPrice(), Fare.BIKE_RATE_PER_HOUR);
     }
 
@@ -62,11 +64,12 @@ public class FareCalculatorServiceTest {
         inTime.setTime( System.currentTimeMillis() - (  60 * 60 * 1000) );
         Date outTime = new Date();
         ParkingSpot parkingSpot = new ParkingSpot(1, null,false);
+        Boolean recurrency = false;
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
-        assertThrows(NullPointerException.class, () -> fareCalculatorService.calculateFare(ticket));
+        assertThrows(NullPointerException.class, () -> fareCalculatorService.calculateFare(ticket, recurrency));
     }
 
     @Test
@@ -75,11 +78,12 @@ public class FareCalculatorServiceTest {
         inTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
         Date outTime = new Date();
         ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE,false);
+        Boolean recurrency = false;
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
-        assertThrows(IllegalArgumentException.class, () -> fareCalculatorService.calculateFare(ticket));
+        assertThrows(IllegalArgumentException.class, () -> fareCalculatorService.calculateFare(ticket, recurrency));
     }
 
     @Test
@@ -88,11 +92,12 @@ public class FareCalculatorServiceTest {
         inTime.setTime( System.currentTimeMillis() - (  45 * 60 * 1000) );//45 minutes parking time should give 3/4th parking fare
         Date outTime = new Date();
         ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE,false);
+        Boolean recurrency = false;
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
-        fareCalculatorService.calculateFare(ticket);
+        fareCalculatorService.calculateFare(ticket, recurrency);
         assertEquals((0.75 * Fare.BIKE_RATE_PER_HOUR), ticket.getPrice() );
     }
 
@@ -102,11 +107,12 @@ public class FareCalculatorServiceTest {
         inTime.setTime( System.currentTimeMillis() - (  45 * 60 * 1000) );//45 minutes parking time should give 3/4th parking fare
         Date outTime = new Date();
         ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR,false);
+        Boolean recurrency = false;
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
-        fareCalculatorService.calculateFare(ticket);
+        fareCalculatorService.calculateFare(ticket, recurrency);
         assertEquals( (0.75 * Fare.CAR_RATE_PER_HOUR) , ticket.getPrice());
     }
 
@@ -116,12 +122,57 @@ public class FareCalculatorServiceTest {
         inTime.setTime( System.currentTimeMillis() - (  24 * 60 * 60 * 1000) );//24 hours parking time should give 24 * parking fare per hour
         Date outTime = new Date();
         ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR,false);
+        Boolean recurrency = false;
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
-        fareCalculatorService.calculateFare(ticket);
+        fareCalculatorService.calculateFare(ticket, recurrency);
         assertEquals( (24 * Fare.CAR_RATE_PER_HOUR) , ticket.getPrice());
     }
+    
+    @Test
+    public void calculateFareCarWithDiscount() {
+    	Date inTime = new Date();
+        inTime.setTime( System.currentTimeMillis() - (  60 * 60 * 1000) );
+        Date outTime = new Date();
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR,false);
+        Boolean recurrency = true;
 
+        ticket.setInTime(inTime);
+        ticket.setOutTime(outTime);
+        ticket.setParkingSpot(parkingSpot);
+        fareCalculatorService.calculateFare(ticket, recurrency);
+        assertEquals(ticket.getPrice(), Fare.CAR_RATE_PER_HOUR-Fare.CAR_RATE_PER_HOUR*0.05);
+    }
+    
+    @Test
+    public void calculateFareBikeWithDiscount(){
+        Date inTime = new Date();
+        inTime.setTime( System.currentTimeMillis() - (  60 * 60 * 1000) );
+        Date outTime = new Date();
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE,false);
+        Boolean recurrency = true;
+
+        ticket.setInTime(inTime);
+        ticket.setOutTime(outTime);
+        ticket.setParkingSpot(parkingSpot);
+        fareCalculatorService.calculateFare(ticket, recurrency);
+        assertEquals(ticket.getPrice(), Fare.BIKE_RATE_PER_HOUR-Fare.BIKE_RATE_PER_HOUR*0.05);
+    }
+    
+    @Test
+    public void calculateFareCarWithLessThanThirtyMinutesParkingTime() {
+    	Date inTime = new Date();
+        inTime.setTime( System.currentTimeMillis() - (  25 * 60 * 1000) );
+        Date outTime = new Date();
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR,false);
+        Boolean recurrency = true;
+
+        ticket.setInTime(inTime);
+        ticket.setOutTime(outTime);
+        ticket.setParkingSpot(parkingSpot);
+        fareCalculatorService.calculateFare(ticket, recurrency);
+        assertEquals(ticket.getPrice(), 0);
+    }
 }
