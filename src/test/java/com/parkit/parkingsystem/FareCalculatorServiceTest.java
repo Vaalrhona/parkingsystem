@@ -175,4 +175,18 @@ public class FareCalculatorServiceTest {
         fareCalculatorService.calculateFare(ticket, recurrency);
         assertEquals(ticket.getPrice(), 0);
     }
+    
+    @Test
+    public void recurrency() {
+    	Date inTime = new Date();
+        inTime.setTime( System.currentTimeMillis() - (  25 * 60 * 1000) );
+        Date outTime = new Date();
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR,false);
+        Boolean recurrency = false;
+        ticket.setInTime(inTime);
+        ticket.setOutTime(outTime);
+        ticket.setParkingSpot(parkingSpot);
+        fareCalculatorService.calculateFare(ticket, recurrency);
+        assertEquals(ticket.getPrice(), 0);
+    }
 }
