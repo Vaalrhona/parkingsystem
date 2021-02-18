@@ -1,6 +1,5 @@
 package com.parkit.parkingsystem.integration;
 
-import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.dao.ParkingSpotDAO;
 import com.parkit.parkingsystem.dao.TicketDAO;
 import com.parkit.parkingsystem.integration.config.DataBaseTestConfig;
@@ -20,6 +19,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.when;
+
+import java.util.concurrent.TimeUnit;
 
 @ExtendWith(MockitoExtension.class)
 public class ParkingDataBaseIT {
@@ -60,18 +61,35 @@ public class ParkingDataBaseIT {
         Ticket ticket = ticketDAO.getTicket("ABCDEF");
         ParkingSpot parkingSpot = ticket.getParkingSpot();
         Assert.assertNotNull(ticket);
-        Assert.assertNotSame(parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR), parkingSpot);
+        Assert.assertEquals(false, parkingSpot.isAvailable());
+        Assert.assertEquals(true, parkingSpot.equals(parkingSpot));
     }
 
     @Test
     public void testParkingLotExit(){
         testParkingACar();
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+        try {
+			TimeUnit.SECONDS.sleep(1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
         parkingService.processExitingVehicle();
         Ticket ticket = ticketDAO.getTicket("ABCDEF");
         Assert.assertNotNull(ticket.getOutTime());
         Assert.assertNotNull(ticket.getPrice());
-        //TODO: check that the fare generated and out time are populated correctly in the database
+    }
+    
+
+    @Test
+    public void testRecurringUser() {
+    	testParkingLotExit();
+    	testParkingACar();
+    	testParkingLotExit();
+    	ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+    	parkingService.processExitingVehicle();
+    	Ticket ticket = ticketDAO.getTicket("ABCDEF");
+    	Assert.assertTrue(ticket.getRecurrency());
     }
 
 }

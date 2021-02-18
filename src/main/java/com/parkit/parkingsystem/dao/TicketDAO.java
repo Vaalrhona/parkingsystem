@@ -40,7 +40,7 @@ public class TicketDAO {
         return false;
     }
 
-    public Ticket getTicket(String vehicleRegNumber) {
+    public Ticket getTicket(String vehicleRegNumber){
         Connection con = null;
         Ticket ticket = null;
         try {
@@ -55,6 +55,7 @@ public class TicketDAO {
                 ticket.setParkingSpot(parkingSpot);
                 ticket.setId(rs.getInt(2));
                 ticket.setVehicleRegNumber(vehicleRegNumber);
+                ticket.setRecurrency(isRecurrentUser(vehicleRegNumber));
                 ticket.setPrice(rs.getDouble(3));
                 ticket.setInTime(rs.getTimestamp(4));
                 ticket.setOutTime(rs.getTimestamp(5));
@@ -69,7 +70,7 @@ public class TicketDAO {
         return ticket;
     }
 
-    public boolean updateTicket(Ticket ticket) {
+    public boolean updateTicket(Ticket ticket){
         Connection con = null;
         try {
             con = dataBaseConfig.getConnection();
@@ -87,7 +88,7 @@ public class TicketDAO {
         return false;
     }
     
-    public boolean isRecurrentUser(String vehicleRegNumber) {
+    public boolean isRecurrentUser(String vehicleRegNumber){
     	Connection con = null;
         Boolean response = false;
         try {

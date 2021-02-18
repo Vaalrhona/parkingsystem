@@ -14,7 +14,7 @@ public class FareCalculatorService {
         
         
         double duration = (outHour - inHour)/1000/60; //gets the difference between in and out dates in minutes
-        double hours = duration/60; //converts duration into hours
+        double hours = (double)duration/60; //converts duration into hours
 
         switch (ticket.getParkingSpot().getParkingType()){
             case CAR: {
