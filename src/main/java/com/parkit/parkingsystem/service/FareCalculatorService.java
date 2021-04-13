@@ -35,6 +35,7 @@ public class FareCalculatorService {
         if (isRecurrent) {
         	double discount = ticket.getPrice()*0.05;
         	ticket.setPrice(ticket.getPrice()-discount);
+        	System.out.println("Welcome back! As a recurring user of our parking lot, you'll benefit from a 5% discount.");
         }
     }
     
